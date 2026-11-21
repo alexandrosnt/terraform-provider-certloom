@@ -37,7 +37,9 @@ start() {
 		-e POSTGRES_USER=certloom_owner -e POSTGRES_PASSWORD="$owner_pw" -e POSTGRES_DB=certloom \
 		postgres:18-alpine >/dev/null
 	i=0
-	until docker exec "$pg" pg_isready -U certloom_owner -d certloom >/dev/null 2>&1; do
+	# Check over TCP: the image's first-start init server listens only on the
+	# Unix socket and is restarted afterwards.
+	until docker exec "$pg" pg_isready -h 127.0.0.1 -U certloom_owner -d certloom >/dev/null 2>&1; do
 		i=$((i + 1))
 		[ "$i" -lt 60 ] || { echo "postgres did not start" >&2; exit 1; }
 		sleep 1
