@@ -30,7 +30,8 @@ start() {
 	stop
 	mkdir -p "$dir"
 	bin="$dir/certloomd$(go env GOEXE)"
-	(cd "$CERTLOOM_SRC" && go build -o "$bin" ./cmd/certloomd)
+	# certloom pins its own Go toolchain; let go fetch it for this build.
+	(cd "$CERTLOOM_SRC" && GOTOOLCHAIN=auto go build -o "$bin" ./cmd/certloomd)
 
 	docker run -d --name "$pg" -p "127.0.0.1:$pgport:5432" \
 		-e POSTGRES_USER=certloom_owner -e POSTGRES_PASSWORD="$owner_pw" -e POSTGRES_DB=certloom \
