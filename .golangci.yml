@@ -1,0 +1,20 @@
+version: "2"
+linters:
+  enable:
+    - staticcheck
+    - govet
+    - errcheck
+    - gosec
+    - bodyclose
+    - noctx
+    - errorlint
+    - misspell
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters: [gosec, noctx, errcheck]
+      # ca_file is a path the operator configures for the provider.
+      - linters: [gosec]
+        text: "G304:"

@@ -1,0 +1,8 @@
+/terraform-provider-certloom
+/terraform-provider-certloom.exe
+/dist/
+/.testserver/
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl

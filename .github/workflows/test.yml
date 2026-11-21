@@ -1,0 +1,76 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - run: go build ./...
+      - run: go vet ./...
+      - uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
+      - name: docs are up to date
+        run: |
+          go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v0.25.0 generate --provider-name certloom
+          git diff --exit-code -- docs
+
+  # Acceptance tests against a real certloomd built from the certloom
+  # repository, with every supported CLI. Write-only arguments need 1.11+.
+  acceptance:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cli: terraform
+            version: "1.11.*"
+          - cli: terraform
+            version: latest
+          - cli: tofu
+            version: "1.11.*"
+          - cli: tofu
+            version: latest
+    name: acceptance (${{ matrix.cli }} ${{ matrix.version }})
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: alexandrosnt/certloom
+          path: .certloom
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - if: matrix.cli == 'terraform'
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ matrix.version }}
+          terraform_wrapper: false
+      - if: matrix.cli == 'tofu'
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: ${{ matrix.version }}
+          tofu_wrapper: false
+      - name: start certloomd
+        run: CERTLOOM_SRC=$PWD/.certloom scripts/testserver.sh start
+      - name: acceptance tests
+        run: |
+          . .testserver/env
+          # OpenTofu rejects the test framework's default legacy namespace "-".
+          export TF_ACC=1 TF_ACC_PROVIDER_NAMESPACE=alexandrosnt TF_ACC_TERRAFORM_PATH=$(command -v ${{ matrix.cli }})
+          go test -count=1 -v -timeout 25m ./...
+      - if: failure()
+        run: cat .testserver/certloomd.log
