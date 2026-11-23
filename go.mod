@@ -3,7 +3,7 @@ module github.com/alexandrosnt/terraform-provider-certloom
 go 1.25.8
 
 require (
-	github.com/alexandrosnt/certloom/client v0.1.0
+	github.com/alexandrosnt/certloom/client v0.2.0
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
 	github.com/hashicorp/terraform-plugin-framework-jsontypes v0.2.0
 	github.com/hashicorp/terraform-plugin-framework-validators v0.19.0

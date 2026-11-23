@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-# Endpoint and token can also come from CERTLOOM_ENDPOINT and CERTLOOM_TOKEN.
+# Endpoint and token can also come from CERTLOOM_ENDPOINT (or CERTLOOM_SERVER) and CERTLOOM_TOKEN.
 provider "certloom" {
   endpoint = "https://certloom.example.com:8443"
 }

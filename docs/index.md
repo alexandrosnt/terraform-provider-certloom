@@ -21,7 +21,7 @@ terraform {
   }
 }
 
-# Endpoint and token can also come from CERTLOOM_ENDPOINT and CERTLOOM_TOKEN.
+# Endpoint and token can also come from CERTLOOM_ENDPOINT (or CERTLOOM_SERVER) and CERTLOOM_TOKEN.
 provider "certloom" {
   endpoint = "https://certloom.example.com:8443"
 }
@@ -33,5 +33,5 @@ provider "certloom" {
 ### Optional
 
 - `ca_file` (String) PEM file with extra CA certificates to trust for the server's TLS certificate. Defaults to the `CERTLOOM_CA_FILE` environment variable.
-- `endpoint` (String) Base URL of the certloom server, for example `https://certloom.example.com:8443`. Defaults to the `CERTLOOM_ENDPOINT` environment variable.
+- `endpoint` (String) Base URL of the certloom server, for example `https://certloom.example.com:8443`. Defaults to the `CERTLOOM_ENDPOINT` environment variable, then `CERTLOOM_SERVER` (the variable the certloom CLI uses).
 - `token` (String, Sensitive) API token. Defaults to the `CERTLOOM_TOKEN` environment variable. The token's role must allow the objects you manage: `operator` covers teams and endpoints, `issuer_admin` issuers, DNS solvers and templates, and `owner` everything, including scopes, channels and the policy.

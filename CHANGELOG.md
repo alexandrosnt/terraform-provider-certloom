@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-11-23
+
+### Added
+- Resource `certloom_cloud_account`: AWS, Azure, Google Cloud and Cloudflare
+  accounts that certloomd reads itself, with typed `aws`, `azure`, `gcp`
+  and `cloudflare` blocks and a write-only `secret_wo` for stored keys.
+  Needs certloom 0.1.0-rc.2 or later.
+- The endpoint can also come from `CERTLOOM_SERVER`, the variable the certloom
+  CLI uses.
+
+## 0.1.0 - 2026-11-22
 
 ### Added
 - Resources: `certloom_team`, `certloom_scope`, `certloom_endpoint`,

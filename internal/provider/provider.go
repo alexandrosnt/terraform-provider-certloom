@@ -49,7 +49,7 @@ func (p *certloomProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				MarkdownDescription: "Base URL of the certloom server, for example `https://certloom.example.com:8443`. " +
-					"Defaults to the `CERTLOOM_ENDPOINT` environment variable.",
+					"Defaults to the `CERTLOOM_ENDPOINT` environment variable, then `CERTLOOM_SERVER` (the variable the certloom CLI uses).",
 				Optional: true,
 			},
 			"token": schema.StringAttribute{
@@ -84,10 +84,13 @@ func (p *certloomProvider) Configure(ctx context.Context, req provider.Configure
 		return
 	}
 	endpoint := valueOrEnv(m.Endpoint, "CERTLOOM_ENDPOINT")
+	if endpoint == "" {
+		endpoint = os.Getenv("CERTLOOM_SERVER")
+	}
 	token := valueOrEnv(m.Token, "CERTLOOM_TOKEN")
 	caFile := valueOrEnv(m.CAFile, "CERTLOOM_CA_FILE")
 	if endpoint == "" {
-		resp.Diagnostics.AddAttributeError(path.Root("endpoint"), "Missing endpoint", "Set endpoint or CERTLOOM_ENDPOINT.")
+		resp.Diagnostics.AddAttributeError(path.Root("endpoint"), "Missing endpoint", "Set endpoint, CERTLOOM_ENDPOINT or CERTLOOM_SERVER.")
 	}
 	if token == "" {
 		resp.Diagnostics.AddAttributeError(path.Root("token"), "Missing token", "Set token or CERTLOOM_TOKEN.")
@@ -125,6 +128,7 @@ func (p *certloomProvider) Resources(context.Context) []func() resource.Resource
 		newChannelResource,
 		newIssuerResource,
 		newDNSSolverResource,
+		newCloudAccountResource,
 		newTemplateResource,
 		newPolicyResource,
 	}
